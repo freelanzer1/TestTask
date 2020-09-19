@@ -93,12 +93,7 @@ public class MyDialogFragment extends DialogFragment {
                     Boolean wantToCloseDialog = false;
 
                     if (checkForm ( mlayout ) == true){
-
-                        boolean sendphoto = ((OpencartsActivity)getActivity()).sendPhoto (textName.getText ().toString(), textSurname.getText ().toString(),textPatronymic.getText ().toString());
-                        if (sendphoto == true) {
-                            d.dismiss ( );
-                        }
-
+                        ((OpencartsActivity)getActivity()).sendPhoto (textName.getText ().toString(), textSurname.getText ().toString(),textPatronymic.getText ().toString());
                     }else {
                         Toast toast = Toast.makeText ( getContext ( ),
                                 "Заполните все поля", Toast.LENGTH_SHORT );

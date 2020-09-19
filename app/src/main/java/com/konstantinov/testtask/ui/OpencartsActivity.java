@@ -125,21 +125,8 @@ public class OpencartsActivity extends AppCompatActivity {
 
     }
     public void buttonPhotoClick(View view) {
-        int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-
-        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-            intentsPhoto();
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[] {
-                            Manifest.permission.CAMERA,
-                            Manifest.permission.READ_EXTERNAL_STORAGE
-                    },
-                    REQUEST_CODE_PERMISSION );
-        }
-
-
-    }
+        intentsPhoto();
+           }
 
     public void intentsPhoto() {//интент вызов камеры
 
@@ -227,7 +214,7 @@ public class OpencartsActivity extends AppCompatActivity {
         return uri;
     }
 
-    public boolean sendPhoto(String name, String surname, String patronymic ){//метод для отправки изображения через ретрофит
+    public void sendPhoto(String name, String surname, String patronymic ){//метод для отправки изображения через ретрофит
         myDialogFragment.progressBar.setVisibility( ProgressBar.VISIBLE);
 
 
@@ -265,12 +252,11 @@ public class OpencartsActivity extends AppCompatActivity {
                         if ( respSendImage.getStatus ().equals("success") == true) {
                             Snackbar.make ( constLayout, "Данные отправлены на сервер", Snackbar.LENGTH_LONG )
                                     .show ( );
-                            flagComplite = true;
+                            myDialogFragment.dismiss ();
                         } else {
                             Toast toast = Toast.makeText ( getApplicationContext (),
                                     "Произошла ошибка при отправке!", Toast.LENGTH_SHORT );
                             toast.show ( );
-                            flagComplite = false;
                         }
                         textViewSResp.setText("Ответ от сервера: " + response);
                     }
@@ -280,7 +266,6 @@ public class OpencartsActivity extends AppCompatActivity {
                         Toast toast = Toast.makeText ( getApplicationContext (),
                                 "Произошла ошибка при отправке!", Toast.LENGTH_SHORT );
                         toast.show ( );
-                        flagComplite = false;
                         myDialogFragment.progressBar.setVisibility( ProgressBar.INVISIBLE);
                         textViewSResp.setText("Ответ от сервера: " + e.toString ());
                     }
@@ -292,21 +277,6 @@ public class OpencartsActivity extends AppCompatActivity {
 
                     }
                 });
-        return flagComplite;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_PERMISSION && grantResults.length == 2) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                intentsPhoto();
-            }
-            if (grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                intentsPhoto();
-            }
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
 
