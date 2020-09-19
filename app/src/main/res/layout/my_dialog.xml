@@ -6,19 +6,19 @@ android:orientation="vertical"
 android:padding="8dp" >
 
     <EditText
-        android:id="@+id/editTextName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Имя"
-        android:inputType="textPersonName" />
-
-    <EditText
         android:id="@+id/editTextSurname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Фамилия"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Имя"
         android:inputType="textPersonName" />
 
     <EditText
@@ -37,6 +37,12 @@ android:padding="8dp" >
         android:onClick="dialogOpenPhotoClic"
         android:text="Фото:"
         android:textSize="20sp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 
 </LinearLayout>

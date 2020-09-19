@@ -20,8 +20,10 @@
         <activity android:name=".ui.FullscreenActivity"
             android:theme="@style/FullscreenTheme"
             ></activity>
-        <activity android:name=".ui.OpencartsActivity" />
+        <activity android:name=".ui.OpencartsActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity android:name=".ui.MainActivity"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

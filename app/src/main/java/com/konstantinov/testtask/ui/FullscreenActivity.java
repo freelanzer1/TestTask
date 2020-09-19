@@ -17,12 +17,10 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate ( savedInstanceState );
         setContentView ( R.layout.activity_fullscreen );
-        mImageView = (ImageView) findViewById(R.id.imageViewFull);
+        mImageView = findViewById(R.id.imageViewFull);
         Bundle arguments = getIntent().getExtras();
 
-        if (arguments == null) {
-        } else {
-
+        if (arguments != null) {
             Uri outUri = (Uri)arguments.get("image_uri");
 
             Picasso

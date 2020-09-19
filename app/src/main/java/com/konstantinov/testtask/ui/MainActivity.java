@@ -1,6 +1,5 @@
 package com.konstantinov.testtask.ui;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -8,39 +7,40 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.konstantinov.testtask.NetworkService;
 import com.konstantinov.testtask.POJO.Datum;
 import com.konstantinov.testtask.POJO.ResponseIosPixli;
 import com.konstantinov.testtask.R;
 
+
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.ResourceObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
 
+    private static final String TAG = "result";
     MyRecyclerViewAdapter adapter;
-    private LinearLayoutManager mLayoutManager;
-    private String call = "get_data";
-    private ResponseIosPixli responseIosPixli;
     private ProgressBar progressBar;
     private Button buttonReconnect;
+    private Disposable disposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView( R.layout.activity_main);
 
-         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(ProgressBar.VISIBLE);
-        buttonReconnect = (Button) findViewById(R.id.buttonReconnect);
+        buttonReconnect = findViewById(R.id.buttonReconnect);
         buttonReconnect.setVisibility ( Button.INVISIBLE );
 // запускаем длительную операцию
         loadInfo ();
@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
     private void setRecycler(List<Datum> data) {
         // set up the RecyclerView
         RecyclerView recyclerView = findViewById(R.id.rvResponse );
-        mLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(mLayoutManager);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager ( this );
+        recyclerView.setLayoutManager( mLayoutManager );
         adapter = new MyRecyclerViewAdapter(this, data);
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
@@ -62,44 +62,45 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
         progressBar.setVisibility(ProgressBar.INVISIBLE);
     }
 
+
     public void loadInfo (){
-
-        NetworkService.getInstance()// выполняем запрос через retrofit
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose ();
+        }
+        String call = "get_data";
+        disposable = NetworkService.getInstance()// выполняем запрос через retrofit
                 .getJSONApi()
-                .getPostWithID(call)
-                .enqueue(new Callback<ResponseIosPixli> () {
-                    @Override
-                    public void onResponse( Call<ResponseIosPixli> call,
-                                            Response<ResponseIosPixli> response) {
-                        responseIosPixli = response.body();
-                        if (response.isSuccessful())
-                        {
-                            setRecycler (responseIosPixli.getData ());
-                            progressBar.setVisibility(ProgressBar.INVISIBLE);
-                            buttonReconnect.setVisibility ( Button.INVISIBLE );
-                        }
-                        else {
-                            progressBar.setVisibility(ProgressBar.INVISIBLE);
-                            buttonReconnect.setVisibility ( Button.VISIBLE );
-                        }
+                .getPostWithID( call )
+                .subscribeOn ( Schedulers.io () )//адает Scheduler, на котором выполняется подписка на Observable . Другими словами, код метода Observable. create() выполняется в потоке, заданном subscribeOn()
+                .observeOn ( AndroidSchedulers.mainThread () )//Используем чтобы обрабатывать результат в основном потоке и показать результат
+                 .subscribeWith ( new ResourceObserver<ResponseIosPixli> () {
+                     @Override
+                     public void onNext(ResponseIosPixli responseIosPixli) {
+                         if ( responseIosPixli.getStatus ().equals("success") == true)
+                         {
+                             setRecycler (responseIosPixli.getData ());
+                             progressBar.setVisibility(ProgressBar.INVISIBLE);
+                             buttonReconnect.setVisibility ( Button.INVISIBLE );
+                         }
+                         else {
+                             progressBar.setVisibility(ProgressBar.INVISIBLE);
+                             buttonReconnect.setVisibility ( Button.VISIBLE );
+                         }
+                         Log.d(TAG, responseIosPixli.getStatus ());
+                     }
 
-                        Toast toast = Toast.makeText(getApplicationContext(),
-                                response.body ().getStatus (), Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
+                     @Override
+                     public void onError(Throwable e) {
+                         Log.d(TAG, "load response onError ");
+                         progressBar.setVisibility(ProgressBar.INVISIBLE);
+                         buttonReconnect.setVisibility ( Button.VISIBLE );
+                     }
 
-                    @Override
-                    public void onFailure(@NonNull Call <ResponseIosPixli> call, @NonNull Throwable t) {
-
-                            progressBar.setVisibility(ProgressBar.INVISIBLE);
-                            buttonReconnect.setVisibility ( Button.VISIBLE );
-
-                        t.printStackTrace();
-                    }
-                });
-
-
-
+                     @Override
+                     public void onComplete() {
+                         Log.d(TAG, "load response onComplete ");
+                     }
+                 });
     }
 
 
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements MyRecyclerViewAda
 
         Intent intent = new Intent (this, OpencartsActivity.class);
 // передача объекта с ключом "id" и значением "id"
-        intent.putExtra("id", adapter.getItem (position).getId ());
+        intent.putExtra("id", String.valueOf(adapter.getItem (position).getId ()));
         intent.putExtra("target", adapter.getItem (position).getTarget ());
 // запуск SecondActivity
         startActivity(intent);

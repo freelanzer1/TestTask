@@ -9,9 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import com.konstantinov.testtask.R;
@@ -26,21 +28,26 @@ public class MyDialogFragment extends DialogFragment {
         mUri = uri;
     }
     private LinearLayout mlayout;
-    private AlertDialog.Builder builder;
     private TextView textName;
     private TextView textSurname;
     private TextView textPatronymic;
+    public ProgressBar progressBar;
 
 
+
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Используем класс Builder для удобного построения диалогов
-        builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder ( getActivity ( ) );
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         final LinearLayout layout = (LinearLayout) inflater.inflate( R.layout.my_dialog, null, false);
         mlayout = layout;
         TextView textFile = layout.findViewById ( R.id.textViewFile );
         textFile.setText ( textFile.getText () + " " + mfileName );
+        progressBar = layout.findViewById(R.id.progressBar2);
+        progressBar.setVisibility( ProgressBar.INVISIBLE);
+
 
 
         builder
@@ -77,7 +84,7 @@ public class MyDialogFragment extends DialogFragment {
         final AlertDialog d = (AlertDialog)getDialog();
         if(d != null)
         {
-            Button positiveButton = (Button) d.getButton(Dialog.BUTTON_POSITIVE);
+            final Button positiveButton = (Button) d.getButton(Dialog.BUTTON_POSITIVE);
             positiveButton.setOnClickListener(new View.OnClickListener()//переопределяем слушатель для позитивбуттон
             {
                 @Override
@@ -86,9 +93,12 @@ public class MyDialogFragment extends DialogFragment {
                     Boolean wantToCloseDialog = false;
 
                     if (checkForm ( mlayout ) == true){
-                        ((OpencartsActivity)getActivity()).sendPhoto (textName.getText ().toString(), textSurname.getText ().toString(),textPatronymic.getText ().toString());
 
-                        d.dismiss();
+                        boolean sendphoto = ((OpencartsActivity)getActivity()).sendPhoto (textName.getText ().toString(), textSurname.getText ().toString(),textPatronymic.getText ().toString());
+                        if (sendphoto == true) {
+                            d.dismiss ( );
+                        }
+
                     }else {
                         Toast toast = Toast.makeText ( getContext ( ),
                                 "Заполните все поля", Toast.LENGTH_SHORT );
@@ -101,7 +111,7 @@ public class MyDialogFragment extends DialogFragment {
         }
     }
 
-    public boolean checkForm(LinearLayout layout){ //проверяем поля на заполнение
+    private boolean checkForm(LinearLayout layout){ //проверяем поля на заполнение
         textName = layout.findViewById ( R.id.editTextName );
         textSurname = layout.findViewById ( R.id.editTextSurname );
         textPatronymic = layout.findViewById ( R.id.editTextPatronymic );

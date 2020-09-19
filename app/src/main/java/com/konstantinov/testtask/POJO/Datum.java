@@ -6,16 +6,16 @@ import com.google.gson.annotations.SerializedName;
 public class Datum {
     @SerializedName("id")
     @Expose
-    private String id;
+    private int id;
     @SerializedName("target")
     @Expose
     private String target;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

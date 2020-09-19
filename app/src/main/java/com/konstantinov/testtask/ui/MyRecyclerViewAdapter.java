@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.konstantinov.testtask.POJO.Datum;
@@ -26,8 +27,9 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     }
 
     // генерим макет строчки из xml
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate( R.layout.recyclerview_row, parent, false);
         return new ViewHolder(view);
     }
@@ -36,7 +38,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Datum datum = adapterData.get (position);
-        holder.myTextView.setText(datum.getId ());
+        holder.myTextView.setText(datum.getId () + " ");
         holder.myTextView2.setText(datum.getTarget ());
     }
 
